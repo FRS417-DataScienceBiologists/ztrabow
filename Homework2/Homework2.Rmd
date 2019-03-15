@@ -1,0 +1,79 @@
+---
+title: "Homework2"
+author: "Zachary Rabow"
+date: "March 14, 2019"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+```{r}
+library('tidyverse')
+```
+
+```{r}
+msleep
+```
+```{r}
+?msleep
+```
+
+```{r}
+summary(msleep)
+```
+```{r}
+str(msleep)
+```
+
+**1. A quantitative, theoretical framework for understanding mammalian sleep**
+**2. Summary fnc: 83 names, genus, vore, order, sleep time, awake time, sleep cycle, sleep total  **
+
+**3**
+```{r}
+msleep %>%
+    select(name,genus,bodywt) %>% 
+  arrange(desc(bodywt))
+```
+
+**4. We are interested in two groups; small and large mammals. Let's define small as less than or equal to 1kg body weight and large as greater than or equal to 200kg body weight. For our study, we are interested in body weight and sleep total Make two new dataframes (large and small) based on these parameters.  **
+
+
+```{r}
+small <- msleep %>%
+  select(name, genus, bodywt, sleep_total) %>%
+  filter(bodywt<=1) %>%
+  arrange(desc(bodywt))
+small
+```
+
+```{r}
+large <- msleep %>%
+  select(name, genus, bodywt, sleep_total) %>%
+  filter(bodywt>=200) %>%
+  arrange(desc(bodywt))
+large
+```
+
+**5. avg sleep dur large= 3.3**
+
+```{r}
+mean(large$sleep_total)
+```
+
+
+
+```{r}
+mean(small$sleep_total)
+```
+**6. avg sleep dur small= 12.65**
+
+**7. Which animals sleep at least 18 hours per day? Be sure to show the name, genus, order, and sleep total.  **
+
+```{r}
+eighteen <- msleep %>%
+  filter(sleep_total>= 18) %>%
+  select(name, genus, order, sleep_total) %>%
+  arrange(order, sleep_total)
+eighteen
+```
+** 5 animals sleep longer than 18 hours, big brown bat, little brown bat, giant armadillo, north american opossum, thick tailed opposum**
