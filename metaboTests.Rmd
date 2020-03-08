@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+library(dplyr)
+library(readr)
+library(tidyr)
+library(car)
+
+dat <- read_csv("~/Desktop/All Regions metanal.csv")
+
+dat.tidy <-
+  dat %>%
+  gather(metabolite, intensity, -Organ, -Treatment, -`Sample ID`) %>%
+  mutate(log10.intensity = log10(intensity),
+         Treatment = relevel(as.factor(Treatment), ref = "Control PBS"))
+
+sp <- split(dat.tidy, f = dat.tidy$metabolite)
+
+ps <- 
+  lapply(sp, function(x){
+  mod <- lm(log10.intensity ~ Treatment, data = x)
+  mod.anova <- Anova(mod, type = "III")
+  p <- mod.anova$`Pr(>F)`[1]
+  return(p)
+})
+
+ps.vec <- do.call(rbind, ps)
+
+ps.adj <- p.adjust(ps.vec, method = "BH")
+
+results <-
+  data_frame(metabolite = row.names(ps.vec),
+             p.raw = ps.vec[,1],
+             p.adj = ps.adj,
+             sig = ifelse(p.adj < 0.05, "red", "black"))
+
+results.sig <-
+  results %>%
+  filter(p.adj <= 0.05)
+
+library(ggplot2)
+
+results %>%
+  ggplot(aes(x = metabolite, y = -log10(p.adj), color = sig)) +
+  geom_point() +
+  geom_hline(yintercept = -log10(0.05), color = 'red')
+
+```
