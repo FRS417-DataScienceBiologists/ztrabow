@@ -1,0 +1,35 @@
+
+---
+title: "DMSO_Proj"
+author: "Zachary Rabow"
+output: html_document
+---
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+```
+
+```{r}
+# calculate means for each chemical, separated out by organ and treatment
+dmso_clean <- read_csv("https://raw.githubusercontent.com/ztrabow/DMSO/master/DMSO/DMSO_clean_data.csv")
+colnames(dmso_clean) <- make.names(colnames(dmso_clean))
+dmso_clean_long <- pivot_longer(data = dmso_clean, 
+                                cols = X3.Methyl.2.oxovaleric.acid:myo.Inositol, 
+                                names_to = "chemical", values_to = "intensity")
+mean_intensity <- dmso_clean_long %>%
+  group_by(Organ, Treatment, chemical) %>%
+  summarize(mean_intensity = mean(intensity))
+
+ggplot(mean_intensity %>%
+         filter(chemical == "myo.Inositol"), 
+       aes(x = Treatment, y = mean_intensity)) +
+  geom_col() +
+  theme_classic() +
+  facet_wrap(~ Organ)
+  
+```
+  
